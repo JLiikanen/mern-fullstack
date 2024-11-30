@@ -4,9 +4,9 @@ import mongoose from "mongoose"
 const goalSchema = new mongoose.Schema(
     {name: String, 
     deadline: String, 
-    PostingDate : { type: Date, default: Date.now },
+    postingDate : { type: Date, default: Date.now },
     isCompleted : Boolean, 
-    // User  : {required : true, type: mongoose.Schema.Types.ObjectId, ref : "User"}
+    user  : {required : true, type: mongoose.Schema.Types.ObjectId, ref : "User"}
 }
 )
 

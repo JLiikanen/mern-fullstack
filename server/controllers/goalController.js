@@ -8,11 +8,10 @@ import { goal } from "../db_schema/models.js";
  */
 
 async function getGoals(req, res) {
-    const goals = await goal.find()
+    const userId = req.user.user_id;
+    const goals = await goal.find({ user: userId });
 
     res.status(200).json(goals);
-    
-    
 }
 
 /**
@@ -22,23 +21,20 @@ async function getGoals(req, res) {
  * @access private
  */
 async function postGoal(req, res, next) {
-    console.log(req.body); 
+    console.log(req.user); 
     if (("name" in req.body))  {
+        // const userId = req.user._id;
         const newGoal = await goal.create({
             name: req.body.name,
             deadline: "2024-12-31",
             isCompleted: false, // Default to incomplete
+            user: req.user.user_id
         });
         res.status(200).json({ message: `Created goal: ${newGoal}` });
     } else {
-        // res.status(400).json({ message: "Goal name is required. Please add a name field." });
         next(new Error("Goal name is required. Please add a name field."));
     }
-    
-    
-        
-    }
-
+}
 
 /**
  * @desc update a goal

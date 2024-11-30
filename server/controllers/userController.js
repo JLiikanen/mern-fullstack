@@ -130,7 +130,8 @@ const loginUser =
         const user = await User.findOne({name : name})
 
         if (user && await bcrypt.compare(password, user.password))
-            // jwt.sign({message : "Login successful!"}, )
+            // 
+
             res.json({message : "Login successful!",
                 id : user._id,
                 name : user.name,
@@ -142,8 +143,20 @@ const loginUser =
         }
 }
 
+/*
+ * @desc Test route for auth. 
+ * @route /api/users/me
+ * @method  GET
+ * @access private
+*/
+const getMe = async (req, res) => {
+    console.log("getme")
+    res.json({message:  "sup"})
+      
+}
+
 const generateToken = (user_id) => {
     return jwt.sign({user_id}, process.env.JWT_SECRET_KEY, {expiresIn:'30d'})
 }
 // Export the controller functions
-export { createUser, getUsers, getUserById, updateUser, deleteUser, loginUser };
+export { createUser, getUsers, getUserById, updateUser, deleteUser, loginUser, getMe };
