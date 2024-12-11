@@ -14,12 +14,20 @@ const saltRounds = 10;
  * @access private
  */
 
+// todo: make sure only unique emails are registered!
+// query for the user email first, and return an error if it is found!
+
 const createUser = async (req, res) => {
     try {
-        const { name, password, role } = req.body;
+        const { name, email, password, role } = req.body;
         const salt = await bcrypt.genSalt(saltRounds);
         const hash = await bcrypt.hash(password, salt);
-        const newUser = new User({ name : name, password: hash, role : role.toLowerCase() }); // gives err if fields dont fit the validator
+
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return res.status(409).json({ message: 'Ahoy! A user with this email already exists!' });
+        }
+        const newUser = new User({ name : name, email : email, password: hash, role : role.toLowerCase() }); // gives err if fields dont fit the validator
 
         const createdUser = await newUser.save(); // returns default fields
 
@@ -30,7 +38,7 @@ const createUser = async (req, res) => {
             email: createdUser.email,
             token: generateToken(createdUser._id)
         })
-
+        console.log("logger: successfully created user!")
     } catch (err) {
         console.log(err)
         res.status(500).json({ message: err.message });

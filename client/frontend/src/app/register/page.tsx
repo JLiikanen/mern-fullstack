@@ -6,19 +6,66 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import React, { useState } from 'react'
 import { EyeIcon, EyeOffIcon } from 'lucide-react'
-
+import { useRouter } from "next/navigation"
 
 export default function RegisterPage() {
+    const router = useRouter()
     const [showPassword, setShowPassword] = useState(false)
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const [error, setError] = useState<string | null>(null)
     // Validate the form
     
-    function handleRegister() {
-        console.log("button clicked")
+    function handleRegister(event: React.FormEvent<HTMLFormElement>) {
+        event.preventDefault()
+        const data = new FormData(event.currentTarget)
+        
+        const name = data.get("name")
+        const email = data.get("email")
+        const password = data.get("password")
+        const role = 'user'
+        console.log({name, email, password})
+
         setIsLoading(true)
         setError(null)
 
+        // New API call to register the user
+        fetch('http://localhost:3000/api/users', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ name, email, password, role }),
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => {
+                    console.log(err.message)
+                    
+                    throw Error(err.message)
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('User created:', data); // delete this because its unsafe
+            // Handle successful registration, e.g., store the token
+            localStorage.setItem('token', data.token); // Store the token safely
+            router.push('/dashboard'); // Redirect to the dashboard
+            // here we can move to the dashboard with the access token in memory!
+
+        })
+        .catch(error => {
+          if (error.message === 'Ahoy! A user with this email already exists!'){
+              setError(error.message)
+              console.error('Error during registration:', error);
+          } else {
+            setError('Registration failed, some error occured. Please try again.');
+          }
+            
+        })
+        .finally(() => {
+            setIsLoading(false);
+        });
     }
 
 
@@ -32,17 +79,18 @@ export default function RegisterPage() {
           <form className="space-y-4" onSubmit={handleRegister}>
             <div className="space-y-2">
               <Label htmlFor="name" >Full Name</Label>
-              <Input id="name" placeholder="Enter your name" required />
+              <Input id="name" name="name" placeholder="Enter your name" required />
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" placeholder="Enter your email" required />
+              <Input id="email" name="email" type="email" placeholder="Enter your email" required />
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
               <div className="relative">
                 <Input 
                   id="password" 
+                  name="password"
                   type={showPassword ? "text" : "password"} 
                   placeholder="Create a password" 
                   required 
@@ -66,6 +114,9 @@ export default function RegisterPage() {
 
                 </div>
             </div>
+            {error ? <div>
+              <p>{error}</p>
+              </div> : "" }
             <Button 
               className="w-full bg-zinc-900 text-white hover:bg-zinc-800" 
               size="lg"
