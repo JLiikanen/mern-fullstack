@@ -1,7 +1,8 @@
 'use client'
 import { useState } from "react";
 import React from 'react'
-
+import { TodoInput } from './components/TodoInput'
+import { TodoList } from './components/TodoList'
 
 export default function Dashboard(){
     const [isAuthorized, setIsAuthorized] = useState(false);
@@ -14,7 +15,7 @@ export default function Dashboard(){
         headers: {
             'authorization': `${token}`
         }
-    }) // still not working, NOW IT LETS ANYONE IN TO THE DASHBOARD!
+    }) 
 
     .then(response => {
         if (response.status === 401) {
@@ -33,8 +34,53 @@ export default function Dashboard(){
     });
 
     console.log(isAuthorized)
+
+  const [todos, setTodos] = useState<Todo[]>([])
+
+  const addTodo = (text: string, category: 'work' | 'home' | 'free-time') => {
+    setTodos([...todos, { id: Date.now(), text, category, completed: false }])
+  }
+
+  const toggleTodo = (id: number) => {
+    setTodos(todos.map(todo => 
+      todo.id === id ? { ...todo, completed: !todo.completed } : todo
+    ))
+  }
+
+  const deleteTodo = (id: number) => {
+    setTodos(todos.filter(todo => todo.id !== id))
+  }
     return (
-        isAuthorized ? <h1>Hello User!</h1> : <h1>Access denied</h1>
-    )
+        isAuthorized ? (
+    <div className="w-full max-w-2xl mx-auto">
+         <div className="container mx-auto p-4 max-w-6xl">
+      <h1 className="text-3xl font-bold mb-8 text-center">To-Do Dashboard</h1>
+      <div className="mb-12">
+        <TodoInput onAddTodo={addTodo} />
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <TodoList 
+          title="Work" 
+          todos={todos.filter(todo => todo.category === 'work')}
+          onToggle={toggleTodo}
+          onDelete={deleteTodo}
+        />
+        <TodoList 
+          title="Home" 
+          todos={todos.filter(todo => todo.category === 'home')}
+          onToggle={toggleTodo}
+          onDelete={deleteTodo}
+        />
+        <TodoList 
+          title="Free-time" 
+          todos={todos.filter(todo => todo.category === 'free-time')}
+          onToggle={toggleTodo}
+          onDelete={deleteTodo}
+        />
+        </div>
+      </div>
+    </div>
+    ) : <h1>Access denied</h1> 
+)
 }
 

@@ -133,9 +133,9 @@ const deleteUser = async (req, res) => {
 */
 const loginUser = 
     async (req, res) => {
-        const {name, password} = req.body
-
-        const user = await User.findOne({name : name})
+        const {email, password} = req.body
+        console.log("auhtenticating", email, password)
+        const user = await User.findOne({email : email})
 
         if (user && await bcrypt.compare(password, user.password))
             // 
@@ -143,11 +143,12 @@ const loginUser =
             res.json({message : "Login successful!",
                 id : user._id,
                 name : user.name,
+                email : user.email,
                 role : user.role,
                 token : generateToken(user._id)
             }) // works!! 23.11.2024
         else {
-            res.json({message : "Wrong passowrd. Try again."})
+            res.status(400).json({message : "Wrong passowrd. Try again."})
         }
 }
 

@@ -114,9 +114,12 @@ export default function RegisterPage() {
 
                 </div>
             </div>
-            {error ? <div>
-              <p>{error}</p>
-              </div> : "" }
+                {/* Error Message */}
+                {error && 
+                <div className="w-full p-2 text-red-700 bg-red-100 border border-red-300 rounded-md">
+                    <p className='text-center'>{error}</p>
+                </div>
+                }
             <Button 
               className="w-full bg-zinc-900 text-white hover:bg-zinc-800" 
               size="lg"
