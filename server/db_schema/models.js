@@ -6,6 +6,11 @@ const goalSchema = new mongoose.Schema(
     deadline: String, 
     postingDate : { type: Date, default: Date.now },
     isCompleted : Boolean, 
+    category : {
+        type : String,
+        enum: ['Work', 'Home', 'Free-time'], // [work, free time, home] update this
+        required: true
+    },
     user  : {required : true, type: mongoose.Schema.Types.ObjectId, ref : "User"}
 }
 )
@@ -34,7 +39,7 @@ const userSchema = new mongoose.Schema({
     createdAt: {
         type: Date,
         default: Date.now
-    }
+    },
 });
 
 const User = mongoose.model("User", userSchema);

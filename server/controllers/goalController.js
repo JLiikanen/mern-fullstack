@@ -8,6 +8,7 @@ import { goal } from "../db_schema/models.js";
  */
 
 async function getGoals(req, res) {
+    console.log("GET GOALS ENDPOINT REQUESTED", new Date().toISOString()); 
     const userId = req.user.user_id;
     const goals = await goal.find({ user: userId });
 
@@ -19,13 +20,15 @@ async function getGoals(req, res) {
  * @route api/goals
  * @method POST
  * @access private
+ * @body name of the goal
  */
 async function postGoal(req, res, next) {
-    console.log(req.user); 
+    console.log("POST ENDPOINT REQUESTED", new Date().toISOString()); 
     if (("name" in req.body))  {
         // const userId = req.user._id;
         const newGoal = await goal.create({
             name: req.body.name,
+            category : req.body.category,
             deadline: "2024-12-31",
             isCompleted: false, // Default to incomplete
             user: req.user.user_id
@@ -65,6 +68,7 @@ async function updateGoal(req, res) {
  * @access private
  */
 async function deleteGoal(req, res) {
+    console.log("DELETE ENDPOINT REQUESTED", new Date().toISOString()); 
     const goalId = req.params.id;
     const deletedGoal = await goal.findByIdAndDelete(goalId);
 
